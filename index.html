@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>API Reference</title>
+    <title>App AutoScaler API Reference</title>
 
     <style>
       .highlight table td { padding: 5px; }
@@ -201,7 +201,7 @@
       <script src="javascripts/all.js"></script>
   </head>
 
-  <body class="index" data-languages="[&quot;shell&quot;,&quot;ruby&quot;,&quot;python&quot;,&quot;javascript&quot;]">
+  <body class="index" data-languages="[&quot;shell&quot;]">
     <a href="#" id="nav-button">
       <span>
         NAV
@@ -212,9 +212,6 @@
       <img src="images/logo.png" class="logo" alt="Logo" />
         <div class="lang-selector">
               <a href="#" data-language-name="shell">shell</a>
-              <a href="#" data-language-name="ruby">ruby</a>
-              <a href="#" data-language-name="python">python</a>
-              <a href="#" data-language-name="javascript">javascript</a>
         </div>
         <div class="search">
           <input type="text" class="search" id="input-search" placeholder="Search">
@@ -222,272 +219,497 @@
         <ul class="search-results"></ul>
       <ul id="toc" class="toc-list-h1">
           <li>
-            <a href="#introduction" class="toc-h1 toc-link" data-title="Introduction">Introduction</a>
+            <a href="#app-autoscaler" class="toc-h1 toc-link" data-title="App AutoScaler">App AutoScaler</a>
           </li>
           <li>
             <a href="#authentication" class="toc-h1 toc-link" data-title="Authentication">Authentication</a>
           </li>
           <li>
-            <a href="#kittens" class="toc-h1 toc-link" data-title="Kittens">Kittens</a>
+            <a href="#policy" class="toc-h1 toc-link" data-title="Policy">Policy</a>
               <ul class="toc-list-h2">
                   <li>
-                    <a href="#get-all-kittens" class="toc-h2 toc-link" data-title="Get All Kittens">Get All Kittens</a>
+                    <a href="#get-policy" class="toc-h2 toc-link" data-title="Get policy">Get policy</a>
                   </li>
                   <li>
-                    <a href="#get-a-specific-kitten" class="toc-h2 toc-link" data-title="Get a Specific Kitten">Get a Specific Kitten</a>
+                    <a href="#create-update-policy" class="toc-h2 toc-link" data-title="Create/Update policy">Create/Update policy</a>
                   </li>
                   <li>
-                    <a href="#delete-a-specific-kitten" class="toc-h2 toc-link" data-title="Delete a Specific Kitten">Delete a Specific Kitten</a>
+                    <a href="#delete-policy" class="toc-h2 toc-link" data-title="Delete policy">Delete policy</a>
                   </li>
               </ul>
           </li>
           <li>
-            <a href="#errors" class="toc-h1 toc-link" data-title="Errors">Errors</a>
+            <a href="#metrics" class="toc-h1 toc-link" data-title="Metrics">Metrics</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#aggregated-metrics" class="toc-h2 toc-link" data-title="Aggregated Metrics">Aggregated Metrics</a>
+                  </li>
+                  <li>
+                    <a href="#instances-metrics" class="toc-h2 toc-link" data-title="Instances Metrics">Instances Metrics</a>
+                  </li>
+              </ul>
+          </li>
+          <li>
+            <a href="#histories" class="toc-h1 toc-link" data-title="Histories">Histories</a>
+              <ul class="toc-list-h2">
+                  <li>
+                    <a href="#http-request-6" class="toc-h2 toc-link" data-title="HTTP Request">HTTP Request</a>
+                  </li>
+                  <li>
+                    <a href="#query-parameters-3" class="toc-h2 toc-link" data-title="Query Parameters">Query Parameters</a>
+                  </li>
+              </ul>
           </li>
       </ul>
         <ul class="toc-footer">
-            <li><a href='#'>Sign Up for a Developer Key</a></li>
-            <li><a href='https://github.com/lord/slate'>Documentation Powered by Slate</a></li>
+            <li><a href='https://github.com/cloudfoundry-incubator/app-autoscaler'>Cloud Foundry App Auto-Scaler</a></li>
         </ul>
     </div>
     <div class="page-wrapper">
       <div class="dark-box"></div>
       <div class="content">
-        <h1 id='introduction'>Introduction</h1>
-<p>Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.</p>
+        <h1 id='app-autoscaler'>App AutoScaler</h1>
+<p>This topic explains how to use the App-AutoScaler with its RESTful API. </p>
 
-<p>We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.</p>
+<p>The App Autoscaler API allows you to manage <code>App Autoscaler</code> with <code>curl</code> from command line simply or in other programming approach. </p>
 
-<p>This example API documentation page was created with <a href="https://github.com/lord/slate">Slate</a>. Feel free to edit it and use it as a base for your own API&#39;s documentation.</p>
+<p>If you access <code>App Autoscaler API</code> through <code>shell</code>, we assume you have installed [Cloud Foundry Command Line][a] which could be used to get Authentication token and Application guid related information. </p>
 <h1 id='authentication'>Authentication</h1>
 <blockquote>
-<p>To authorize, use this code:</p>
+<p>To get the authorization token, use this code:</p>
 </blockquote>
-<pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code><span class="c"># With shell, you can just pass the correct header with each request</span>
-curl <span class="s2">"api_endpoint_here"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
+<pre class="highlight shell tab-shell"><code><span class="nv">token</span><span class="o">=</span><span class="sb">`</span>cf oauth-token<span class="sb">`</span>
+curl <span class="s2">"api_endpoint_here"</span> <span class="se">\</span>
+  -H <span class="s2">"Authorization:</span><span class="nv">$token</span><span class="sb">`</span>  
+</code></pre>
+<p><code>App Autoscaler API</code> uses the <a href="https://github.com/cloudfoundry/uaa/blob/develop/docs/UAA-Tokens.md">Cloud Foundry User Token</a> to identify the user&#39;s information and only responses to the requests raised by authorized Space developers. </p>
+<h1 id='policy'>Policy</h1><h2 id='get-policy'>Get policy</h2>
+<blockquote>
+<p>To get the AutoScaling policy of your application, please use the code below:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nv">token</span><span class="o">=</span><span class="sb">`</span>cf oauth-token<span class="sb">`</span>
+<span class="nv">appId</span><span class="o">=</span><span class="sb">`</span>cf app &lt;Your-App&gt; --guid<span class="sb">`</span>
+curl <span class="s2">"http://example.com/v1/apps/</span><span class="nv">$appId</span><span class="s2">/policy"</span> <span class="se">\</span>
+  -X GET <span class="se">\</span>
+  -H <span class="s2">"Authorization:</span><span class="nv">$token</span><span class="sb">`</span> 
 </code></pre>
 <blockquote>
-<p>Make sure to replace <code>meowmeowmeow</code> with your API key.</p>
+<p>Make sure to replace <code>Your-App</code> with your application name.</p>
+
+<p>The above command returns JSON structured like this, which is built per <a href="/app-autoscaler/policy.html">App AutoScaler policy specification</a></p>
 </blockquote>
+<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
+  </span><span class="s2">"instance_min_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"instance_max_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"scaling_rules"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"metric_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"memoryutil"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"breach_duration_secs"</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"threshold"</span><span class="p">:</span><span class="w"> </span><span class="mi">30</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"operator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"cool_down_secs"</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"adjustment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"-1"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"metric_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"memoryutil"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"breach_duration_secs"</span><span class="p">:</span><span class="w"> </span><span class="mi">600</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"threshold"</span><span class="p">:</span><span class="w"> </span><span class="mi">90</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"operator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;="</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"cool_down_secs"</span><span class="p">:</span><span class="w"> </span><span class="mi">300</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"adjustment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+1"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="s2">"schedules"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="s2">"timezone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Asia/Shanghai"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"recurring_schedule"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"start_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10:00"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"end_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"18:00"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"days_of_week"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="mi">1</span><span class="p">,</span><span class="w">
+          </span><span class="mi">2</span><span class="p">,</span><span class="w">
+          </span><span class="mi">3</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"instance_min_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"instance_max_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"initial_min_instance_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2099-06-27"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2099-07-23"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"start_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"11:00"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"end_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"19:30"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"days_of_month"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="mi">5</span><span class="p">,</span><span class="w">
+          </span><span class="mi">15</span><span class="p">,</span><span class="w">
+          </span><span class="mi">25</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="s2">"instance_min_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"instance_max_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"initial_min_instance_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="s2">"specific_date"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"start_date_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2099-06-02T10:00"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"end_date_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2099-06-15T13:59"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"instance_min_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"instance_max_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"initial_min_instance_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="s2">"start_date_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2099-01-04T20:00"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"end_date_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2099-02-19T23:15"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"instance_min_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"instance_max_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"initial_min_instance_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
 
-<p>Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our <a href="http://example.com/developers">developer portal</a>.</p>
 
-<p>Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:</p>
+</span></code></pre>
+<p>This endpoint retrieves the Auto-Scaling policy of your application. </p>
+<h3 id='http-request'>HTTP Request</h3>
+<p><code>GET /v1/apps/:guid/policy</code></p>
 
-<p><code>Authorization: meowmeowmeow</code></p>
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
-<h1 id='kittens'>Kittens</h1><h2 id='get-all-kittens'>Get All Kittens</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">kittens</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="nx">get</span><span class="p">();</span>
+<p>where <code>:guid</code> is the application&#39;s GUID. </p>
+<h2 id='create-update-policy'>Create/Update policy</h2>
+<blockquote>
+<p>To create an AutoScaling policy to your application, please prepare a policy JSON according to <a href="/app-autoscaler/policy.html">App AutoScaler policy specification</a> first, then attach the policy with the code below: </p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nv">token</span><span class="o">=</span><span class="sb">`</span>cf oauth-token<span class="sb">`</span>
+<span class="nv">appId</span><span class="o">=</span><span class="sb">`</span>cf app Your-App --guid<span class="sb">`</span>
+curl <span class="s2">"http://example.com/v1/apps/</span><span class="nv">$appId</span><span class="s2">/policy"</span> <span class="se">\</span>
+  -X PUT <span class="se">\</span>
+  -H <span class="s2">"Authorization:</span><span class="nv">$token</span><span class="sb">`</span> <span class="se">\</span>
+  -H <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  -d @policy.json 
 </code></pre>
 <blockquote>
-<p>The above command returns JSON structured like this:</p>
+<p>Make sure to replace <code>Your-App</code> with your application name, also replace <code>policy.json</code> with your policy file. </p>
+
+<p>If the policy content is written in valid schema, the example response is :</p>
+</blockquote>
+<pre class="highlight plaintext"><code>HTTP/1.1 200 OK
+&lt;file contents&gt;
+</code></pre>
+<blockquote>
+<p>If the policy content is invalid, the example response is :</p>
+</blockquote>
+<pre class="highlight plaintext"><code>HTTP/1.1 400 Bad Request
+&lt;Error messages&gt;
+</code></pre>
+<p>This endpoint create/update the Auto-Scaling policy to your application. </p>
+<h3 id='http-request-2'>HTTP Request</h3>
+<p><code>PUT /v1/apps/:guid/policy</code></p>
+
+<p>where <code>:guid</code> is the application&#39;s GUID. </p>
+
+<aside class="notice">The request body should be a valid <a href='/app-autoscaler/policy.html'>App AutoScaler policy</a> </aside>
+<h2 id='delete-policy'>Delete policy</h2>
+<blockquote>
+<p>To remove <code>App AutoScaler</code> from your application, you can delete the policy with the code below:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nv">token</span><span class="o">=</span><span class="sb">`</span>cf oauth-token<span class="sb">`</span>
+<span class="nv">appId</span><span class="o">=</span><span class="sb">`</span>cf app &lt;Your-App&gt; --guid<span class="sb">`</span>
+curl <span class="s2">"http://example.com/v1/apps/</span><span class="nv">$appId</span><span class="s2">/policy"</span> <span class="se">\</span>
+  -X DELETE <span class="se">\</span>
+  -H <span class="s2">"Authorization:</span><span class="nv">$token</span><span class="sb">`</span> 
+</code></pre>
+<blockquote>
+<p>Make sure to replace <code>Your-App</code> with your application name.</p>
+
+<p>Example response is :</p>
+</blockquote>
+<pre class="highlight plaintext"><code>HTTP/1.1 200 OK
+</code></pre>
+<p>This endpoint delete the Auto-Scaling policy from your application. </p>
+<h3 id='http-request-3'>HTTP Request</h3>
+<p><code>DELETE /v1/apps/:guid/policy</code></p>
+
+<p>where <code>:guid</code> is the application&#39;s GUID. </p>
+<h1 id='metrics'>Metrics</h1><h2 id='aggregated-metrics'>Aggregated Metrics</h2>
+<blockquote>
+<p>To get historical aggreagated metrics of your application, please use the code below:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nv">token</span><span class="o">=</span><span class="sb">`</span>cf oauth-token<span class="sb">`</span>
+<span class="nv">appId</span><span class="o">=</span><span class="sb">`</span>cf app &lt;Your-App&gt; --guid<span class="sb">`</span>
+curl <span class="s2">"http://example.com/v1/apps/</span><span class="nv">$appId</span><span class="s2">/aggregated_metric_histories/&lt;Metric-Type&gt;"</span> <span class="se">\</span>
+  -X GET <span class="se">\</span>
+  -H <span class="s2">"Authorization:</span><span class="nv">$token</span><span class="sb">`</span> 
+</code></pre>
+<blockquote>
+<p>Make sure to replace <code>Your-App</code> with your application name, and replace the <code>Metric-Type</code> to one of the supported metric types. </p>
+
+<p>The above command returns JSON Array like below:</p>
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Fluffums"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"calico"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">7</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="p">{</span><span class="w">
-    </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
-  </span><span class="p">}</span><span class="w">
+  </span><span class="s2">"total_results"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"total_pages"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"prev_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"next_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"resources"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"app_guid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appId"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1494989539138350433</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"metric_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"memoryused"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"400"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"megabytes"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"app_guid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appId"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1494989539138350433</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"metric_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"memoryused"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"400"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"megabytes"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
 </span><span class="p">]</span><span class="w">
 </span></code></pre>
-<p>This endpoint retrieves all kittens.</p>
-<h3 id='http-request'>HTTP Request</h3>
-<p><code>GET http://example.com/api/kittens</code></p>
+<p>This endpoint retrieves the aggregated metrics of your application. </p>
+
+<p><code>App AutoScaler</code> has more interests in the application’s aggregated average metric than individual instance metrics and use the aggregated metrics in evaluation stage.  So, querying the aggrgated metrics will help you to understand why a scaling action happens at that time.  </p>
+<h3 id='http-request-4'>HTTP Request</h3>
+<p><code>GET /v1/apps/:guid/aggregated_metric_histories/:&lt;Metric-Type&gt;</code>, in which </p>
+
+<ul>
+<li><code>:guid</code> is the application&#39;s GUID</li>
+<li><code>:&lt;Metric-Type&gt;</code> is one of the supported metric type value, including 
+
+<ul>
+<li>memoryused </li>
+<li>memoryutil</li>
+<li>responsetime</li>
+<li>throughput</li>
+</ul></li>
+</ul>
 <h3 id='query-parameters'>Query Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
-<th>Default</th>
 <th>Description</th>
+<th>Values</th>
+<th>Required</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>include_cats</td>
-<td>false</td>
-<td>If set to true, the result will also include cats.</td>
+<td>start-time</td>
+<td>The start time</td>
+<td>int, the number of nanoseconds elapsed since January 1, 1970 UTC</td>
+<td>false, default 0</td>
 </tr>
 <tr>
-<td>available</td>
-<td>true</td>
-<td>If set to false, the result will include kittens that have already been adopted.</td>
+<td>end-time</td>
+<td>The end time</td>
+<td>int, the number of nanoseconds elapsed since January 1, 1970 UTC</td>
+<td>false, default <code>now</code></td>
+</tr>
+<tr>
+<td>order</td>
+<td>The order of display</td>
+<td>string,”asc” or “desc”</td>
+<td>false, default <code>desc</code></td>
+</tr>
+<tr>
+<td>page</td>
+<td>The required page number</td>
+<td>int</td>
+<td>false, default 1</td>
+</tr>
+<tr>
+<td>results-per-page</td>
+<td>Number of results which displayed in the same page</td>
+<td>int</td>
+<td>false, default 10</td>
 </tr>
 </tbody></table>
-
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
-<h2 id='get-a-specific-kitten'>Get a Specific Kitten</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span>
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<h2 id='instances-metrics'>Instances Metrics</h2>
+<blockquote>
+<p>To get historical instance&#39;s metrics of your application, please use the code below:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nv">token</span><span class="o">=</span><span class="sb">`</span>cf oauth-token<span class="sb">`</span>
+<span class="nv">appId</span><span class="o">=</span><span class="sb">`</span>cf app &lt;Your-App&gt; --guid<span class="sb">`</span>
+curl <span class="s2">"http://example.com/v1/apps/</span><span class="nv">$appId</span><span class="s2">/metric_histories/&lt;Metric-Type&gt;"</span> <span class="se">\</span>
+  -X GET <span class="se">\</span>
+  -H <span class="s2">"Authorization:</span><span class="nv">$token</span><span class="sb">`</span> 
 </code></pre>
 <blockquote>
-<p>The above command returns JSON structured like this:</p>
-</blockquote>
-<pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Max"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"breed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"unknown"</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"fluffiness"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"cuteness"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<p>This endpoint retrieves a specific kitten.</p>
+<p>Make sure to replace <code>Your-App</code> with your application name, and replace the <code>Metric-Type</code> to one of the supported metric types. </p>
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
-<h3 id='http-request-2'>HTTP Request</h3>
-<p><code>GET http://example.com/kittens/&lt;ID&gt;</code></p>
-<h3 id='url-parameters'>URL Parameters</h3>
+<p>The above command returns JSON Array like below:</p>
+</blockquote>
+<pre class="highlight json tab-json"><code><span class="p">[</span><span class="w">
+  </span><span class="s2">"total_results"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"total_pages"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"resources"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"app_guid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appId"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"instanceIndex"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1494989539138350433</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"collected_at"</span><span class="p">:</span><span class="w"> </span><span class="mi">1494989539138350000</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"metric_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"memoryused"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"400"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"megabytes"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"app_guid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appId"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"instance_index"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1494989539138350433</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"collected_at"</span><span class="p">:</span><span class="w"> </span><span class="mi">1494989539138350000</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"metric_type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"memoryused"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"400"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"megabytes"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+<p>This endpoint retrieves the instance&#39;s metrics of your application. </p>
+<h3 id='http-request-5'>HTTP Request</h3>
+<p><code>GET /v1/apps/:guid/metric_histories/:&lt;Metric-Type&gt;</code>, in which </p>
+
+<ul>
+<li><code>:guid</code> is the application&#39;s GUID</li>
+<li><code>:&lt;Metric-Type&gt;</code> is one of the supported metric type value, including 
+
+<ul>
+<li>memoryused </li>
+<li>memoryutil</li>
+<li>responsetime</li>
+<li>throughput</li>
+</ul></li>
+</ul>
+<h3 id='query-parameters-2'>Query Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
 <th>Description</th>
+<th>Values</th>
+<th>Required</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>ID</td>
-<td>The ID of the kitten to retrieve</td>
+<td>start-time</td>
+<td>The start time</td>
+<td>int, the number of nanoseconds elapsed since January 1, 1970 UTC</td>
+<td>false, default 0</td>
+</tr>
+<tr>
+<td>end-time</td>
+<td>The end time</td>
+<td>int, the number of nanoseconds elapsed since January 1, 1970 UTC</td>
+<td>false, default <code>now</code></td>
+</tr>
+<tr>
+<td>order</td>
+<td>The order of display</td>
+<td>string,”asc” or “desc”</td>
+<td>false, default <code>desc</code></td>
+</tr>
+<tr>
+<td>page</td>
+<td>The required page number</td>
+<td>int</td>
+<td>false, default 1</td>
+</tr>
+<tr>
+<td>results-per-page</td>
+<td>Number of results which displayed in the same page</td>
+<td>int</td>
+<td>false, default 10</td>
 </tr>
 </tbody></table>
-<h2 id='delete-a-specific-kitten'>Delete a Specific Kitten</h2><pre class="highlight ruby tab-ruby"><code><span class="nb">require</span> <span class="s1">'kittn'</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="no">Kittn</span><span class="o">::</span><span class="no">APIClient</span><span class="p">.</span><span class="nf">authorize!</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="p">.</span><span class="nf">kittens</span><span class="p">.</span><span class="nf">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">import</span> <span class="nn">kittn</span>
-
-<span class="n">api</span> <span class="o">=</span> <span class="n">kittn</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="s">'meowmeowmeow'</span><span class="p">)</span>
-<span class="n">api</span><span class="o">.</span><span class="n">kittens</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-</code></pre><pre class="highlight shell tab-shell"><code>curl <span class="s2">"http://example.com/api/kittens/2"</span>
-  -X DELETE
-  -H <span class="s2">"Authorization: meowmeowmeow"</span>
-</code></pre><pre class="highlight javascript tab-javascript"><code><span class="kr">const</span> <span class="nx">kittn</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'kittn'</span><span class="p">);</span>
-
-<span class="kd">let</span> <span class="nx">api</span> <span class="o">=</span> <span class="nx">kittn</span><span class="p">.</span><span class="nx">authorize</span><span class="p">(</span><span class="s1">'meowmeowmeow'</span><span class="p">);</span>
-<span class="kd">let</span> <span class="nx">max</span> <span class="o">=</span> <span class="nx">api</span><span class="p">.</span><span class="nx">kittens</span><span class="p">.</span><span class="k">delete</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+<h1 id='histories'>Histories</h1>
+<blockquote>
+<p>To get the autoscaling histories of your application, please use the code below:</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code><span class="nv">token</span><span class="o">=</span><span class="sb">`</span>cf oauth-token<span class="sb">`</span>
+<span class="nv">appId</span><span class="o">=</span><span class="sb">`</span>cf app &lt;Your-App&gt; --guid<span class="sb">`</span>
+curl <span class="s2">"http://example.com/v1/apps/</span><span class="nv">$appId</span><span class="s2">/scaling_histories"</span> <span class="se">\</span>
+  -X GET <span class="se">\</span>
+  -H <span class="s2">"Authorization:</span><span class="nv">$token</span><span class="sb">`</span> 
 </code></pre>
 <blockquote>
-<p>The above command returns JSON structured like this:</p>
+<p>Make sure to replace <code>Your-App</code> with your application name.</p>
+
+<p>The above command returns JSON Array like below:</p>
 </blockquote>
 <pre class="highlight json tab-json"><code><span class="p">{</span><span class="w">
-  </span><span class="s2">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
-  </span><span class="s2">"deleted"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">":("</span><span class="w">
+  </span><span class="s2">"total_results"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"total_pages"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"page"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="s2">"resources"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"app_guid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appId"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1494989539138350433</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"scaling_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"old_instances"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"new_instances"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="s2">"app_guid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appId"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"timestamp"</span><span class="p">:</span><span class="w"> </span><span class="mi">1494989539138350435</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"scaling_type"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"status"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"old_instances"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"new_instances"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"reason"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-<p>This endpoint deletes a specific kitten.</p>
-<h3 id='http-request-3'>HTTP Request</h3>
-<p><code>DELETE http://example.com/kittens/&lt;ID&gt;</code></p>
-<h3 id='url-parameters-2'>URL Parameters</h3>
+<p>This endpoint retrieves the autoscaling history events of your application for audit purpose.</p>
+<h3 id='http-request-6'>HTTP Request</h3>
+<p><code>GET /v1/apps/:guid/scaling_histories</code></p>
+
+<p>where <code>:guid</code> is the application&#39;s GUID</p>
+<h3 id='query-parameters-3'>Query Parameters</h3>
 <table><thead>
 <tr>
 <th>Parameter</th>
 <th>Description</th>
+<th>Values</th>
+<th>Required</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>ID</td>
-<td>The ID of the kitten to delete</td>
-</tr>
-</tbody></table>
-<h1 id='errors'>Errors</h1>
-<aside class="notice">
-This error section is stored in a separate file in <code>includes/_errors.md</code>. Slate allows you to optionally separate out your docs into many files...just save them to the <code>includes</code> folder and add them to the top of your <code>index.md</code>'s frontmatter. Files are included in the order listed.
-</aside>
-
-<p>The Kittn API uses the following error codes:</p>
-
-<table><thead>
-<tr>
-<th>Error Code</th>
-<th>Meaning</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>400</td>
-<td>Bad Request -- Your request is invalid.</td>
+<td>start-time</td>
+<td>The start time</td>
+<td>int, the number of nanoseconds elapsed since January 1, 1970 UTC</td>
+<td>false, default 0</td>
 </tr>
 <tr>
-<td>401</td>
-<td>Unauthorized -- Your API key is wrong.</td>
+<td>end-time</td>
+<td>The end time</td>
+<td>int, the number of nanoseconds elapsed since January 1, 1970 UTC</td>
+<td>false, default <code>now</code></td>
 </tr>
 <tr>
-<td>403</td>
-<td>Forbidden -- The kitten requested is hidden for administrators only.</td>
+<td>order</td>
+<td>The order of display</td>
+<td>string,”asc” or “desc”</td>
+<td>false, default <code>desc</code></td>
 </tr>
 <tr>
-<td>404</td>
-<td>Not Found -- The specified kitten could not be found.</td>
+<td>page</td>
+<td>The required page number</td>
+<td>int</td>
+<td>false, default 1</td>
 </tr>
 <tr>
-<td>405</td>
-<td>Method Not Allowed -- You tried to access a kitten with an invalid method.</td>
-</tr>
-<tr>
-<td>406</td>
-<td>Not Acceptable -- You requested a format that isn&#39;t json.</td>
-</tr>
-<tr>
-<td>410</td>
-<td>Gone -- The kitten requested has been removed from our servers.</td>
-</tr>
-<tr>
-<td>418</td>
-<td>I&#39;m a teapot.</td>
-</tr>
-<tr>
-<td>429</td>
-<td>Too Many Requests -- You&#39;re requesting too many kittens! Slow down!</td>
-</tr>
-<tr>
-<td>500</td>
-<td>Internal Server Error -- We had a problem with our server. Try again later.</td>
-</tr>
-<tr>
-<td>503</td>
-<td>Service Unavailable -- We&#39;re temporarily offline for maintenance. Please try again later.</td>
+<td>results-per-page</td>
+<td>Number of results which displayed in the same page</td>
+<td>int</td>
+<td>false, default 10</td>
 </tr>
 </tbody></table>
 
@@ -495,9 +717,6 @@ This error section is stored in a separate file in <code>includes/_errors.md</co
       <div class="dark-box">
           <div class="lang-selector">
                 <a href="#" data-language-name="shell">shell</a>
-                <a href="#" data-language-name="ruby">ruby</a>
-                <a href="#" data-language-name="python">python</a>
-                <a href="#" data-language-name="javascript">javascript</a>
           </div>
       </div>
     </div>
