@@ -1,239 +1,402 @@
 ---
-title: API Reference
+title: App AutoScaler API Reference
 
 language_tabs: # must be one of https://git.io/vQNgJ
   - shell
-  - ruby
-  - python
-  - javascript
 
 toc_footers:
-  - <a href='#'>Sign Up for a Developer Key</a>
-  - <a href='https://github.com/lord/slate'>Documentation Powered by Slate</a>
-
-includes:
-  - errors
+  - <a href='https://github.com/cloudfoundry-incubator/app-autoscaler'>Cloud Foundry App Auto-Scaler</a>
 
 search: true
 ---
 
-# Introduction
+# App AutoScaler
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+This topic explains how to use the App-AutoScaler with its RESTful API. 
 
-We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
+The App Autoscaler API allows you to manage `App Autoscaler` with `curl` from command line simply or in other programming approach. 
 
-This example API documentation page was created with [Slate](https://github.com/lord/slate). Feel free to edit it and use it as a base for your own API's documentation.
+If you access `App Autoscaler API` through `shell`, we assume you have installed [Cloud Foundry Command Line][a] which could be used to get Authentication token and Application guid related information. 
 
 # Authentication
 
-> To authorize, use this code:
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-```
+> To get the authorization token, use this code:
 
 ```shell
-# With shell, you can just pass the correct header with each request
-curl "api_endpoint_here"
-  -H "Authorization: meowmeowmeow"
+token=`cf oauth-token`
+curl "api_endpoint_here" \
+  -H "Authorization:$token`  
 ```
 
-```javascript
-const kittn = require('kittn');
+`App Autoscaler API` uses the [Cloud Foundry User Token][uaa] to identify the user's information and only responses to the requests raised by authorized Space developers. 
 
-let api = kittn.authorize('meowmeowmeow');
-```
 
-> Make sure to replace `meowmeowmeow` with your API key.
+# Policy
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+## Get policy 
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
-
-`Authorization: meowmeowmeow`
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
-
-# Kittens
-
-## Get All Kittens
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
+> To get the AutoScaling policy of your application, please use the code below:
 
 ```shell
-curl "http://example.com/api/kittens"
-  -H "Authorization: meowmeowmeow"
+token=`cf oauth-token`
+appId=`cf app <Your-App> --guid`
+curl "http://example.com/v1/apps/$appId/policy" \
+  -X GET \
+  -H "Authorization:$token` 
+```
+> Make sure to replace `Your-App` with your application name.
+
+> The above command returns JSON structured like this, which is built per [App AutoScaler policy specification][policy]
+
+```json
+{
+  "instance_min_count": 1,
+  "instance_max_count": 4,
+  "scaling_rules": [
+    {
+      "metric_type": "memoryutil",
+      "breach_duration_secs": 600,
+      "threshold": 30,
+      "operator": "<",
+      "cool_down_secs": 300,
+      "adjustment": "-1"
+    },
+    {
+      "metric_type": "memoryutil",
+      "breach_duration_secs": 600,
+      "threshold": 90,
+      "operator": ">=",
+      "cool_down_secs": 300,
+      "adjustment": "+1"
+    }
+  ],
+  "schedules": {
+    "timezone": "Asia/Shanghai",
+    "recurring_schedule": [
+      {
+        "start_time": "10:00",
+        "end_time": "18:00",
+        "days_of_week": [
+          1,
+          2,
+          3
+        ],
+        "instance_min_count": 1,
+        "instance_max_count": 10,
+        "initial_min_instance_count": 5
+      },
+      {
+        "start_date": "2099-06-27",
+        "end_date": "2099-07-23",
+        "start_time": "11:00",
+        "end_time": "19:30",
+        "days_of_month": [
+          5,
+          15,
+          25
+        ],
+        "instance_min_count": 3,
+        "instance_max_count": 10,
+        "initial_min_instance_count": 5
+      }
+    ],
+    "specific_date": [
+      {
+        "start_date_time": "2099-06-02T10:00",
+        "end_date_time": "2099-06-15T13:59",
+        "instance_min_count": 1,
+        "instance_max_count": 4,
+        "initial_min_instance_count": 2
+      },
+      {
+        "start_date_time": "2099-01-04T20:00",
+        "end_date_time": "2099-02-19T23:15",
+        "instance_min_count": 2,
+        "instance_max_count": 5,
+        "initial_min_instance_count": 3
+      }
+    ]
+  }
+}
+
+
 ```
 
-```javascript
-const kittn = require('kittn');
+This endpoint retrieves the Auto-Scaling policy of your application. 
 
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
+### HTTP Request
+
+`GET /v1/apps/:guid/policy`
+
+where `:guid` is the application's GUID. 
+
+## Create/Update policy
+
+> To create an AutoScaling policy to your application, please prepare a policy JSON according to [App AutoScaler policy specification][policy] first, then attach the policy with the code below: 
+
+```shell
+token=`cf oauth-token`
+appId=`cf app Your-App --guid`
+curl "http://example.com/v1/apps/$appId/policy" \
+  -X PUT \
+  -H "Authorization:$token` \
+  -H "Content-Type: application/json" \
+  -d @policy.json 
+```
+> Make sure to replace `Your-App` with your application name, also replace `policy.json` with your policy file. 
+
+> If the policy content is written in valid schema, the example response is :
+
+```
+HTTP/1.1 200 OK
+<file contents>
 ```
 
-> The above command returns JSON structured like this:
+> If the policy content is invalid, the example response is :
+
+```
+HTTP/1.1 400 Bad Request
+<Error messages>
+```
+
+This endpoint create/update the Auto-Scaling policy to your application. 
+
+### HTTP Request
+
+`PUT /v1/apps/:guid/policy`
+
+where `:guid` is the application's GUID. 
+
+<aside class="notice">The request body should be a valid <a href='/app-autoscaler/policy.html'>App AutoScaler policy</a> </aside>
+
+
+## Delete policy
+
+> To remove `App AutoScaler` from your application, you can delete the policy with the code below:
+
+```shell
+token=`cf oauth-token`
+appId=`cf app <Your-App> --guid`
+curl "http://example.com/v1/apps/$appId/policy" \
+  -X DELETE \
+  -H "Authorization:$token` 
+```
+> Make sure to replace `Your-App` with your application name.
+
+>Example response is :
+
+```
+HTTP/1.1 200 OK
+```
+
+This endpoint delete the Auto-Scaling policy from your application. 
+
+### HTTP Request
+
+`DELETE /v1/apps/:guid/policy`
+
+where `:guid` is the application's GUID. 
+
+# Metrics
+
+## Aggregated Metrics
+
+> To get historical aggreagated metrics of your application, please use the code below:
+
+```shell
+token=`cf oauth-token`
+appId=`cf app <Your-App> --guid`
+curl "http://example.com/v1/apps/$appId/aggregated_metric_histories/<Metric-Type>" \
+  -X GET \
+  -H "Authorization:$token` 
+```
+> Make sure to replace `Your-App` with your application name, and replace the `Metric-Type` to one of the supported metric types. 
+
+> The above command returns JSON Array like below:
 
 ```json
 [
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
+  "total_results": 2,
+  "total_pages": 1,
+  "page": 1,
+  "prev_url": null,
+  "next_url": null,
+  "resources": [
+    {
+      "app_guid": "appId",
+      "timestamp": 1494989539138350433,
+      "metric_type": "memoryused",
+      "value": "400",
+      "unit": "megabytes"
+    },
+    {
+      "app_guid": "appId",
+      "timestamp": 1494989539138350433,
+      "metric_type": "memoryused",
+      "value": "400",
+      "unit": "megabytes"
+    }
+  ]
 ]
 ```
+This endpoint retrieves the aggregated metrics of your application. 
 
-This endpoint retrieves all kittens.
+`App AutoScaler` has more interests in the application’s aggregated average metric than individual instance metrics and use the aggregated metrics in evaluation stage.  So, querying the aggrgated metrics will help you to understand why a scaling action happens at that time.  
 
 ### HTTP Request
 
-`GET http://example.com/api/kittens`
+`GET /v1/apps/:guid/aggregated_metric_histories/:<Metric-Type>`, in which 
+
+* `:guid` is the application's GUID
+* `:<Metric-Type>` is one of the supported metric type value, including 
+   * memoryused 
+   * memoryutil
+   * responsetime
+   * throughput
 
 ### Query Parameters
 
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+Parameter | Description                 | Values           | Required
+--------- | ----------------------------|----------------- | --------
+start-time| The start time              | int, the number of nanoseconds elapsed since January 1, 1970 UTC  | false, default 0
+end-time  | The end time                | int, the number of nanoseconds elapsed since January 1, 1970 UTC  | false, default `now`
+order | The order of display             | string,”asc” or “desc” | false, default `desc`
+page | The required page number          | int | false, default 1
+results-per-page | Number of results which displayed in the same page       | int | false, default 10
 
-<aside class="success">
-Remember — a happy kitten is an authenticated kitten!
-</aside>
 
-## Get a Specific Kitten
+## Instances Metrics
 
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
+> To get historical instance's metrics of your application, please use the code below:
 
 ```shell
-curl "http://example.com/api/kittens/2"
-  -H "Authorization: meowmeowmeow"
+token=`cf oauth-token`
+appId=`cf app <Your-App> --guid`
+curl "http://example.com/v1/apps/$appId/metric_histories/<Metric-Type>" \
+  -X GET \
+  -H "Authorization:$token` 
 ```
+> Make sure to replace `Your-App` with your application name, and replace the `Metric-Type` to one of the supported metric types. 
 
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
-```
-
-> The above command returns JSON structured like this:
+> The above command returns JSON Array like below:
 
 ```json
-{
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
-}
+[
+  "total_results": 2,
+  "total_pages": 1,
+  "page": 1,
+  "resources": [
+    {
+      "app_guid": "appId",
+      "instanceIndex": 0,
+      "timestamp": 1494989539138350433,
+      "collected_at": 1494989539138350000,
+      "metric_type": "memoryused",
+      "value": "400",
+      "unit": "megabytes"
+    },
+    {
+      "app_guid": "appId",
+      "instance_index": 1,
+      "timestamp": 1494989539138350433,
+      "collected_at": 1494989539138350000,
+      "metric_type": "memoryused",
+      "value": "400",
+      "unit": "megabytes"
+    }
+  ]
+]
 ```
-
-This endpoint retrieves a specific kitten.
-
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+This endpoint retrieves the instance's metrics of your application. 
 
 ### HTTP Request
 
-`GET http://example.com/kittens/<ID>`
+`GET /v1/apps/:guid/metric_histories/:<Metric-Type>`, in which 
 
-### URL Parameters
+* `:guid` is the application's GUID
+* `:<Metric-Type>` is one of the supported metric type value, including 
+   * memoryused 
+   * memoryutil
+   * responsetime
+   * throughput
 
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
+### Query Parameters
 
-## Delete a Specific Kitten
+Parameter | Description                 | Values           | Required
+--------- | ----------------------------|----------------- | --------
+start-time| The start time              | int, the number of nanoseconds elapsed since January 1, 1970 UTC  | false, default 0
+end-time  | The end time                | int, the number of nanoseconds elapsed since January 1, 1970 UTC  | false, default `now`
+order | The order of display             | string,”asc” or “desc” | false, default `desc`
+page | The required page number          | int | false, default 1
+results-per-page | Number of results which displayed in the same page       | int | false, default 10
 
-```ruby
-require 'kittn'
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
-```
+# Histories
 
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
-```
+> To get the autoscaling histories of your application, please use the code below:
 
 ```shell
-curl "http://example.com/api/kittens/2"
-  -X DELETE
-  -H "Authorization: meowmeowmeow"
+token=`cf oauth-token`
+appId=`cf app <Your-App> --guid`
+curl "http://example.com/v1/apps/$appId/scaling_histories" \
+  -X GET \
+  -H "Authorization:$token` 
 ```
+> Make sure to replace `Your-App` with your application name.
 
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.delete(2);
-```
-
-> The above command returns JSON structured like this:
+> The above command returns JSON Array like below:
 
 ```json
 {
-  "id": 2,
-  "deleted" : ":("
+  "total_results": 2,
+  "total_pages": 1,
+  "page": 1,
+  "resources": [
+    {
+      "app_guid": "appId",
+      "timestamp": 1494989539138350433,
+      "scaling_type": 1,
+      "status": 0,
+      "old_instances": 1,
+      "new_instances": 2,
+      "reason": "",
+      "message": "",
+      "error": ""
+    },
+    {
+      "app_guid": "appId",
+      "timestamp": 1494989539138350435,
+      "scaling_type": 1,
+      "status": 0,
+      "old_instances": 1,
+      "new_instances": 2,
+      "reason": "",
+      "message": "",
+      "error": ""
+    }
+  ]
 }
 ```
-
-This endpoint deletes a specific kitten.
+This endpoint retrieves the autoscaling history events of your application for audit purpose.
 
 ### HTTP Request
 
-`DELETE http://example.com/kittens/<ID>`
+`GET /v1/apps/:guid/scaling_histories`
 
-### URL Parameters
+where `:guid` is the application's GUID
 
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to delete
 
+### Query Parameters
+
+Parameter | Description                 | Values           | Required
+--------- | ----------------------------|----------------- | --------
+start-time| The start time              | int, the number of nanoseconds elapsed since January 1, 1970 UTC  | false, default 0
+end-time  | The end time                | int, the number of nanoseconds elapsed since January 1, 1970 UTC  | false, default `now`
+order | The order of display             | string,”asc” or “desc” | false, default `desc`
+page | The required page number          | int | false, default 1
+results-per-page | Number of results which displayed in the same page       | int | false, default 10
+
+
+
+[uaa]:https://github.com/cloudfoundry/uaa/blob/develop/docs/UAA-Tokens.md
+[policy]:/app-autoscaler/policy.html
